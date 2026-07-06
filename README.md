@@ -1,6 +1,6 @@
 # ✨ Smart Social Media Caption Generator
 
-Aplikasi generator caption otomatis berkualitas tinggi untuk berbagai platform sosial media, ditenagai oleh **Google Gemini AI** dengan desain UI/UX premium yang responsif.
+Aplikasi generator caption otomatis berkualitas tinggi untuk berbagai platform sosial media, ditenagai oleh **Google Gemini API** dengan desain UI/UX premium yang responsif.
 
 Aplikasi ini menghasilkan caption terstruktur menggunakan formula penulisan pemasaran (*copywriting frameworks*) populer untuk memaksimalkan performa dan interaksi konten Anda.
 
@@ -30,6 +30,7 @@ Aplikasi ini menghasilkan caption terstruktur menggunakan formula penulisan pema
 - **Akses Cepat Platform**: Tautan langsung untuk membuka platform sosial media target dalam satu klik.
 - **Riwayat Konten**: Riwayat caption tersimpan aman di browser (*localStorage*) dengan fitur gunakan kembali (*reuse*), salin, atau hapus.
 - **Antarmuka Premium**: Desain bertema gelap (*dark mode*) modern dengan efek *glassmorphism* yang responsif.
+- **Arsitektur Modular & Bersih**: Kode frontend telah direfaktor dan dipecah menjadi komponen modular untuk kemudahan pemeliharaan (*maintainability*) dan performa optimal.
 
 ---
 
@@ -50,8 +51,13 @@ social-media-caption-generator/
 │   ├── package.json       # Dependensi frontend (react, tailwind, lucide-react)
 │   └── src/
 │       ├── main.jsx       # Entry point React
-│       ├── App.jsx        # Komponen dashboard utama generator
-│       └── App.css        # Gaya custom tambahan & impor Tailwind CSS
+│       ├── App.jsx        # Komponen logika utama generator
+│       ├── App.css        # Gaya custom tambahan & impor Tailwind CSS
+│       └── components/    # Komponen React modular hasil refaktorisasi
+│           ├── SocialIcons.jsx      # Ikon platform & brand SVG
+│           ├── Toast.jsx            # Toast notifikasi feedback
+│           ├── LoadingSkeleton.jsx  # Loader placeholder
+│           └── PlatformMockup.jsx   # Live mockup pratinjau media sosial
 └── README.md
 ```
 
