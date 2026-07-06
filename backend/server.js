@@ -105,6 +105,11 @@ app.use((err, _req, res, _next) => {
   });
 });
 
-app.listen(PORT, () => {
-  console.log(`🚀 Backend running at http://localhost:${PORT}`);
-});
+// Hanya jalankan app.listen jika tidak berjalan di Vercel (Serverless Function)
+if (!process.env.VERCEL) {
+  app.listen(PORT, () => {
+    console.log(`🚀 Backend running at http://localhost:${PORT}`);
+  });
+}
+
+export default app;
