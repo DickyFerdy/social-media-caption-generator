@@ -2,20 +2,38 @@ import "dotenv/config";
 
 import express from "express";
 import cors from "cors";
+import rateLimit from "express-rate-limit";
+import morgan from "morgan";
 import { generateCaption } from "./gemini.js";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// — HTTP Request Logger —
+app.use(morgan("dev"));
+
+// — Rate Limiter —
+// Membatasi request untuk mencegah abuse API key
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 menit
+  max: 20, // maksimal 20 request per IP dalam 15 menit
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: {
+    success: false,
+    error: "Terlalu banyak permintaan pembuatan caption dari perangkat ini. Silakan coba lagi dalam 15 menit.",
+  },
+});
+
 // — Middleware —
 app.use(cors({
   origin: process.env.CORS_ORIGIN || "http://localhost:5173",
-  methods: ["POST"],
+  methods: ["POST", "GET"],
 }));
 app.use(express.json());
 
-// — Endpoint POST /api/generate —
-app.post("/api/generate", async (req, res) => {
+// — Endpoint POST /api/generate (with rate-limiting) —
+app.post("/api/generate", apiLimiter, async (req, res) => {
   try {
     const { topic, platform, tone } = req.body;
 
@@ -50,14 +68,15 @@ app.post("/api/generate", async (req, res) => {
       });
     }
 
-    // Panggil Gemini API
+    // Panggil Gemini API yang telah refaktor dengan structured output
     const result = await generateCaption(topic.trim(), platform, tone);
 
     if (!result.success) {
       return res.status(500).json({ success: false, error: result.error });
     }
 
-    return res.json({ success: true, caption: result.data });
+    // Mengembalikan array opsi caption yang terstruktur
+    return res.json({ success: true, captions: result.data });
   } catch (error) {
     console.error("Server Error:", error);
     return res.status(500).json({
@@ -75,6 +94,15 @@ app.get("/", (_req, res) => {
 // — 404 Handler —
 app.use((_req, res) => {
   res.status(404).json({ success: false, error: "Endpoint tidak ditemukan." });
+});
+
+// — Error Handler Middleware —
+app.use((err, _req, res, _next) => {
+  console.error("Unhandled Error:", err);
+  res.status(500).json({
+    success: false,
+    error: "Terjadi kesalahan sistem yang tidak terduga.",
+  });
 });
 
 app.listen(PORT, () => {
